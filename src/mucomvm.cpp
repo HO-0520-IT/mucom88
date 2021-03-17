@@ -14,11 +14,15 @@
 #include "adpcm.h"
 #include "mucomerror.h"
 
-#define BUFSIZE 200			// Stream Buffer 200ms
+#define BUFSIZE 2000			// Stream Buffer 200ms
 #define baseclock 7987200		// Base Clock
 
 #include "mucomvm_os.h"
 #include "voiceformat.h"
+
+#include "../wincehelper.h"
+#define Msgf printf
+#define MsgfNoConvert printf
 
 /*------------------------------------------------------------*/
 /*
@@ -665,6 +669,7 @@ int mucomvm::ExecUntilHalt(int times)
 		Msgf("%06x PC=%04x HL=%04x A=%02x\r\n", cnt, pc, GetHL(), GetA());
 #endif
 		//printf("PC=%04x HL=%04x (%d):\n", pc, GetHL(), Peek(0xa0f5));
+		//printf("%d\n", pc);
 		if (pc < 0x8000) {
 			if (pc == 0x5550) {
 				int i;
@@ -686,7 +691,7 @@ int mucomvm::ExecUntilHalt(int times)
 					//Msgf("#%s\r\n", mucom_geterror(msgid),msgid);
 				}
 				else {
-					Msgf("#Unknown message [%s].\r\n", stmp);
+					//Msgf("#Unknown message [%s].\r\n", stmp);
 				}
 			}
 			else if (pc == 0x18) {
@@ -694,7 +699,7 @@ int mucomvm::ExecUntilHalt(int times)
 				return -1;
 			}
 			else if (pc == 0x3b3) {
-				Msgf("#Error trap at $%04x.\r\n", pc);
+				//Msgf("#Error trap at $%04x.\r\n", pc);
 				//DumpBin(0, 0x100);
 				return -1;
 			}
@@ -703,20 +708,24 @@ int mucomvm::ExecUntilHalt(int times)
 				//return -2;
 			}
 		}
-
 		if (original_mode) ExecuteCLUC(); else ExecuteModCLUC();
 
 #if 1
 		ConvertVoice();
 #endif
-
 		if (!adrmap[pc]) {
 			adrmap[pc] = true;
 			if (verbose) printf("run:pc:%04x\n", pc);
 		}
 
 		last_pc = pc;
-		Execute(times);
+		//if ((pc != 0x9cba) && (pc != 0x9cd3) && (pc != 0x9bef)&& (pc != 0x9bfb)) {
+			Execute(times);
+		/*} else {
+			int32_t i;
+			i = Execute(times);
+			printf("Z80 op: %d", i);
+		}*/
 		if (m_flag == VMFLAG_HALT) break;
 		cnt++;
 	}
@@ -826,7 +835,7 @@ void mucomvm::DumpBin(uint16_t adr, uint16_t length)
 
 
 // 変換
-void mucomvm::Msgf(const char *format, ...)
+/*void mucomvm::Msgf(const char *format, ...)
 {
 	char textbf[4096];
 	char outbuf[4096];
@@ -837,10 +846,10 @@ void mucomvm::Msgf(const char *format, ...)
 
 	Conv->FromSjis(textbf, outbuf, 4096);
 	membuf->PutStr(outbuf);
-}
+}*/
 
 // 変換なし
-void mucomvm::MsgfNoConvert(const char *format, ...)
+/*void mucomvm::MsgfNoConvert(const char *format, ...)
 {
 	char textbf[4096];
 	va_list args;
@@ -848,7 +857,7 @@ void mucomvm::MsgfNoConvert(const char *format, ...)
 	vsprintf(textbf, format, args);
 	va_end(args);
 	membuf->PutStr(textbf);
-}
+}*/
 
 
 void mucomvm::SetPC(uint16_t adr)
@@ -890,8 +899,10 @@ int mucomvm::CallAndHalt2(uint16_t adr,uint8_t code)
 	*p++ = code;
 	*p++ = 0;
 	*p++ = 0;
+	printf("Preparation OK\n");
 
 	SetPC(tempadr);
+	printf("SetPC OK\n");
 	return ExecUntilHalt(1);
 }
 
@@ -932,7 +943,7 @@ int mucomvm::LoadMem(const char *fname, int adr, int size)
 	//
 	FILE *fp;
 	int flen,sz;
-	fp = fopen(fname, "rb");
+	fp = wceh_fopen(fname, "rb");
 	if (fp == NULL) return -1;
 	sz = size; if (sz == 0) sz = 0x10000;
 	flen = (int)fread(mem+adr, 1, sz, fp);
@@ -951,7 +962,7 @@ char *mucomvm::LoadAlloc(const char *fname, int *sizeout)
 	int sz;
 
 	*sizeout = 0;
-	fp = fopen(fname, "rb");
+	fp = wceh_fopen(fname, "rb");
 	if (fp == NULL) return NULL;
 	fseek(fp, 0, SEEK_END);
 	sz = (int)ftell(fp);			// normal file size
@@ -1093,7 +1104,7 @@ int mucomvm::SaveToFile(const char *fname, const unsigned char *src, int size)
 	//
 	FILE *fp;
 	int flen;
-	fp = fopen(fname, "wb");
+	fp = wceh_fopen(fname, "wb");
 	if (fp == NULL) return -1;
 	flen = (int)fwrite(src, 1, size, fp);
 	fclose(fp);
@@ -1150,7 +1161,7 @@ int mucomvm::SaveMemExpand(const char *fname, int adr, int size, char *header, i
 	//	VMメモリの内容をファイルにセーブ(ヘッダとフッタ付き)
 	//
 	FILE *fp;
-	fp = fopen(fname, "wb");
+	fp = wceh_fopen(fname, "wb");
 	if (fp == NULL) return -1;
 	if (header) fwrite(header, 1, hedsize, fp);
 
@@ -1471,7 +1482,7 @@ void mucomvm::FMOutData(int data)
 void mucomvm::TraceLog(int data)
 {
 	if (trace_fp == NULL) {
-		trace_fp = fopen("tracelog.txt","w");
+		trace_fp = wceh_fopen("tracelog.txt","w");
 	}
 	if (trace_fp != NULL) 
 		fprintf(trace_fp,"FMReg: %04x = %02x\n", sound_reg_select, data);
@@ -1556,7 +1567,7 @@ int mucomvm::ConvertWAVtoADPCMFile(const char *fname, const char *sname)
 	res = (int)dAdpcmSize;
 
 	FILE *fp;
-	fp = fopen(sname, "wb");
+	fp = wceh_fopen(sname, "wb");
 	if (fp != NULL) {
 		fwrite(dstbuffer, 1, res, fp);
 		fclose(fp);

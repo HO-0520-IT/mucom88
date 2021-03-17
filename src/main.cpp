@@ -6,20 +6,23 @@
 //			Special thanks to : WING☆, Makoto Wada (Ancient corp.), boukichi, kumatan
 //
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
-#ifdef WIN32
+
+/*#ifdef WIN32
 #include <direct.h>
 #define getcwd _getcwd
 #define CHDIR _chdir
-#else
-#include <unistd.h>
-#define CHDIR chdir
-#define _MAX_PATH 512
-#endif
+#else*/
+#include "wincehelper.cpp"
+#define getcwd wceh_getcwd
+#define CHDIR wceh_CHDIR
+/*#define _MAX_PATH 512
+#endif*/
 
 #include "cmucom.h"
 
@@ -33,14 +36,14 @@
 #define DEFAULT_OUTFILE "mucom88.mub"
 #define DEFAULT_OUTWAVE "mucom88.wav"
 
-#define RENDER_RATE 44100
+#define RENDER_RATE 22050
 #define RENDER_SECONDS 90
 
 #ifdef __APPLE__
 #define STRCASECMP strcasecmp
 #else
 #ifdef _WIN32
-#define STRCASECMP _strcmpi
+#define STRCASECMP _stricmp
 #else
 #define STRCASECMP strcasecmp
 #endif
@@ -97,10 +100,10 @@ int main( int argc, char *argv[] )
 	const char* rhythmdir;
 	const char* drivername;
 
-#if defined(USE_SDL) && defined(_WIN32)
+/*#if defined(USE_SDL) && defined(_WIN32)
 	freopen( "CON", "w", stdout );
 	freopen( "CON", "w", stderr );
-#endif
+#endif*/
 
 	//	check switch and prm
 
@@ -308,9 +311,11 @@ int main( int argc, char *argv[] )
 		if (voicefile != NULL) {
 			mucom.LoadFMVoice(voicefile);
 		}
+		printf("loaded\n");
 		if (mucom.CompileFile(fname, outfile) < 0) {
 			st = 1;
 		}
+		printf("compiled\n");
 		play_direct = true;
 	} else {
 		if (mucom.LoadMusic(fname) < 0) {

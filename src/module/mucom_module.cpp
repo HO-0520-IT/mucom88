@@ -3,20 +3,22 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
+#include <io.h>
 
 #include "mucom_module.h"
+
+#include "../wincehelper.h"
 
 #define MUCOM_DEFAULT_PCMFILE "mucompcm.bin"
 #define DEFAULT_OUTFILE "mucom88.mub"
 
 MucomModule::MucomModule() {
-  audioRate = 44100;
+  audioRate = 22050;
   pcmfile = MUCOM_DEFAULT_PCMFILE;
   outfile = DEFAULT_OUTFILE;
   voicefile = NULL;
   resultText = NULL;
-  volume = 1.0f;
+  volume = 0.1f;
 }
 
 MucomModule::~MucomModule() {
@@ -41,7 +43,7 @@ void MucomModule::SetVolume(double vol) {
 
 
 bool MucomModule::Open(const char *workingDirectory, const char *songFilename) {
-  chdir(workingDirectory);
+  wceh_CHDIR(workingDirectory);
   mucom = new CMucom();
   int cmpopt = MUCOM_CMPOPT_COMPILE;
   mucom->Init(NULL,cmpopt,audioRate);

@@ -35,9 +35,9 @@
 #define MUCOM_DATA_ADDRESS 0xc200
 
 #ifndef USE_SDL
-#define MUCOM_AUDIO_RATE 55467		// Sampling Rate 55K
+#define MUCOM_AUDIO_RATE 22050		// Sampling Rate 22K
 #else
-#define MUCOM_AUDIO_RATE 44100
+#define MUCOM_AUDIO_RATE 22050
 #endif
 
 #define MUCOM_RESET_PLAYER 0

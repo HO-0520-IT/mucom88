@@ -57,14 +57,16 @@
 #define STRCASECMP strcasecmp
 #else
 #ifdef _WIN32
-#define STRCASECMP _strcmpi
+#define STRCASECMP _stricmp
 #else
 #define STRCASECMP strcasecmp
 #endif
 #endif
 
-#define PRINTF vm->Msgf
-#define PRINTF_NOCONV vm->MsgfNoConvert
+//#define PRINTF vm->Msgf
+#define PRINTF printf
+//#define PRINTF_NOCONV vm->MsgfNoConvert
+#define PRINTF_NOCONV printf
 
 int CMucom::htoi_sub(char hstr)
 {
@@ -978,6 +980,7 @@ int CMucom::LoadFMVoice(const char *fname, bool sw)
 		// オリジナルファイルのみの場合
 		StoreFMVoice((unsigned char *)voicedata_org);
 		//Alertf("[%s]%s", voice_pathname.c_str(), voicefilename.c_str());
+		printf("[%s]%s", voice_pathname.c_str(), voicefilename.c_str());
 	}
 	else {
 		// 一時ファイルがあった場合
@@ -1706,8 +1709,10 @@ int CMucom::Compile(char *text, int option, bool writeMub, const char *filename)
 
 	int loopst = 0xf25a;
 	vm->Pokew(loopst, 0x0101);		// ループ情報スタックを初期化する(ループ外の'/'でエラーを出すため)
+	printf("Poke OK\n");
 
 	res = vm->CallAndHalt2(vec, 'A');
+	printf("CallAndHalt OK\n");
 	if (res) {
 		int line = vm->Peekw(0x0f32e);
 		int msgid = vm->GetMessageId();
@@ -1727,6 +1732,7 @@ int CMucom::Compile(char *text, int option, bool writeMub, const char *filename)
 	} else {
 		PutMucomHeader(stmp);
 	}
+	printf("Message OK\n");
 
 	workadr = 0xf320;
 	fmvoice = vm->Peek(workadr + 50);
@@ -1736,6 +1742,7 @@ int CMucom::Compile(char *text, int option, bool writeMub, const char *filename)
 
 	jumpcount = vm->Peekw(MUCOM_ADDRESS_JCLOCK);		// JCLOCKの値(Jコマンドのタグ位置)
 	jumpline = vm->Peekw(MUCOM_ADDRESS_JPLINE);		// JPLINEの値(Jコマンドの行番号)
+	printf("JCLOCK JPLINE OK\n");
 
 	PRINTF("Used FM voice:%d", fmvoice);
 

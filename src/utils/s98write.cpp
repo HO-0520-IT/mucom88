@@ -4,6 +4,8 @@
 
 #include "s98write.h"
 
+#include "../wincehelper.h"
+
 S98Write::S98Write() {
 	BaseTick = 0;
 	SyncBufferTicks = 0;
@@ -25,7 +27,7 @@ S98Write::~S98Write() {
 }
 
 bool S98Write::Open(const char *filename) {
-	fp = fopen(filename,"wb");
+	fp = wceh_fopen(filename,"wb");
 	return fp != NULL;
 }
 

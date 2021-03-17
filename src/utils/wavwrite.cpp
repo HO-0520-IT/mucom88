@@ -4,6 +4,7 @@
 
 #include "wavwrite.h"
 
+#include "../wincehelper.h"
 WavWriter::WavWriter()
 {
   fp = NULL;
@@ -32,7 +33,7 @@ void WavWriter::SetFormat(int rate, int bits, int channels)
 
 bool WavWriter::Open(const char *filename)
 {
-  fp = fopen(filename, "wb");
+  fp = wceh_fopen(filename, "wb");
   return fp != NULL;
 }
 

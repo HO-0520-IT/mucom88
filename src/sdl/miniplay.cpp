@@ -3,6 +3,8 @@
 #include "audiosdl.h"
 #include "mucom_module.h"
 
+#include "../wincehelper.cpp"
+
 class Player {
 public:
     Player();
@@ -56,13 +58,15 @@ int Player::Play(const char *filename) {
     module = new MucomModule();
 
     printf("File:%s\n", filename);
-    bool r = module->Open(".", filename);
+    char currbuf[MAX_PATH + 1];
+    wceh_getcwd(currbuf, MAX_PATH + 1);
+    bool r = module->Open(currbuf, filename);
     puts(module->GetResult());
     if (!r) return -1;
     r = module->Play();
     if (!r) return -1;
 
-    sdl->Open(44100);
+    sdl->Open(22050);
 
     // イベントループ
     printf("Playing..\n");
@@ -85,10 +89,10 @@ void Player::Stop() {
 
 
 int main(int argc,char *argv[]) {
-#if defined(USE_SDL) && defined(_WIN32)
+/*#if defined(USE_SDL) && defined(_WIN32)
     freopen("CON", "w", stdout);
     freopen("CON", "w", stderr );
-#endif
+#endif*/
     printf("MUCOM88 miniplay\n");
     if (argc < 2) {
         printf("usage miniplay <song.muc>\n");

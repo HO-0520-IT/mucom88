@@ -4,6 +4,8 @@
 
 #include "pcmentry.h"
 
+#include "../wincehelper.h"
+
 PcmEntry::PcmEntry() {
 	adrl = 0;
 	adrh = 0;
@@ -51,7 +53,7 @@ void PcmEntry::SetStart(int start) {
 bool PcmEntry::SetData(const char *name, const char *binfile) {
 	strcpy(this->name, name);
 
-    FILE *fp = fopen(binfile, "rb");
+    FILE *fp = wceh_fopen(binfile, "rb");
     if (fp == NULL) { return false; }
 
     fseek(fp,0,SEEK_END);

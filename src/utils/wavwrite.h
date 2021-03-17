@@ -11,7 +11,7 @@ public:
   bool Open(const char *filename);
   void Close();
 
-  void SetFormat(int rate = 44100, int bits = 16, int channels = 2);
+  void SetFormat(int rate = 22050, int bits = 16, int channels = 2);
 
   // length: shortの数
   void WriteData(short *buf, int length);

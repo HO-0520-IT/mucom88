@@ -8,6 +8,8 @@
 
 #include "mucom_module.h"
 
+#include "../wincehelper.h"
+
 void WriteWORD(unsigned char *p, unsigned short v) {
     p[0] = (v & 0xff);
     p[1] = ((v>>8) & 0xff);
@@ -51,10 +53,10 @@ void WriteWavHeader(FILE *fp, int frequency, int bits, int channels, long sample
 }
 
 void RecordWav(const char *outputFilename, MucomModule *m,int seconds) {
-    FILE *fp = fopen(outputFilename,"wb");
+    FILE *fp = wceh_fopen(outputFilename,"wb");
     if (fp == NULL) return;
 
-    int rate = 44100;
+    int rate = 22050;
     int bits = 16;
     int channels = 2;
     long totalSamples = 0;

@@ -16,6 +16,7 @@ UNAME_S := $(shell uname -s)
 endif
 
 # SDL使用
+WIN32 = 1
 OS_SDL = 1
 
 # Win32ネイティブ
@@ -38,3 +39,9 @@ endif
 ifeq ($(OS_LINUX),1)
 STATIC = 0
 endif
+
+$(warning WIN32 = $(WIN32))
+
+$(warning OS_WIN32 = $(OS_WIN32))
+
+$(warning SDL_WIN32 = $(SDL_WIN32))

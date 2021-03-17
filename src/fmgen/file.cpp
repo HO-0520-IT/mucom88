@@ -7,6 +7,8 @@
 #include "headers.h"
 #include "file.h"
 
+#include "../wincehelper.h"
+
 // ---------------------------------------------------------------------------
 //	構築/消滅
 // ---------------------------------------------------------------------------
@@ -39,7 +41,7 @@ bool FileIO::Open(const char* filename, uint flg)
 
     strncpy(path, filename, _MAXPATH);
 
-    fp = fopen(filename, "rb");
+    fp = wceh_fopen(filename, "rb");
     if (!fp)
         return false;
     
@@ -58,7 +60,7 @@ bool FileIO::CreateNew(const char* filename)
 
     strncpy(path, filename, _MAXPATH);
 
-    fp = fopen(filename, "wb");
+    fp = wceh_fopen(filename, "wb");
     if (!fp)
         return false;
     

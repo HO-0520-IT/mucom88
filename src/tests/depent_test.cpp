@@ -50,7 +50,7 @@ void TestClass::Info() {
     printf("TestClass : Tests OS dependent code.\n");
 }
 
-#define RATE 55467				// Sampling Rate 55K
+#define RATE 22050				// Sampling Rate 22K
 #define BUFSIZE 200				// Stream Buffer 200ms
 
 static void RunAudioCallback(void *CallbackInstance,void *MethodInstance);

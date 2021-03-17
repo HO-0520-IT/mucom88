@@ -4,6 +4,8 @@
 
 #include "vgmwrite.h"
 
+#include "../wincehelper.h"
+
 VGMWrite::VGMWrite() {
 	BaseTick = 0;
 	SyncBufferTicks = 0;
@@ -15,7 +17,7 @@ VGMWrite::VGMWrite() {
 
 	HeaderOut = false;
 
-	BaseTick = (double)1 / 44100;
+	BaseTick = (double)1 / 22050;
 	Loop = false;
 }
 
@@ -24,7 +26,7 @@ VGMWrite::~VGMWrite() {
 }
 
 bool VGMWrite::Open(const char *filename) {
-	fp = fopen(filename,"wb");
+	fp = wceh_fopen(filename,"wb");
 	return fp != NULL;
 }
 

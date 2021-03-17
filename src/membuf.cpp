@@ -10,6 +10,8 @@
 #include <assert.h>
 #include "membuf.h"
 
+#include "../wincehelper.h"
+
 //-------------------------------------------------------------
 //		Routines
 //-------------------------------------------------------------
@@ -260,7 +262,7 @@ int CMemBuf::PutFile(const char *fname )
 	int length;
 	FILE *ff;
 
-	ff=fopen( fname,"rb" );
+	ff=wceh_fopen( fname,"rb" );
 	if (ff==NULL) return -1;
 	fseek( ff,0,SEEK_END );
 	length=(int)ftell( ff );			// normal file size
@@ -268,7 +270,7 @@ int CMemBuf::PutFile(const char *fname )
 	if (length < 0) return -1;
 
 	p = PreparePtr( length+1 );
-	ff=fopen( fname,"rb" );
+	ff=wceh_fopen( fname,"rb" );
 	fread( p, 1, length, ff );
 	fclose(ff);
 	p[length]=0;
@@ -388,7 +390,7 @@ int CMemBuf::SaveFile(const char *fname )
 	//
 	FILE *fp;
 	int flen;
-	fp=fopen(fname,"wb");
+	fp=wceh_fopen(fname,"wb");
 	if (fp==NULL) return -1;
 	flen = fwrite( mem_buf, 1, cur, fp );
 	fclose(fp);

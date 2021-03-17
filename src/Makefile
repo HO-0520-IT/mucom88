@@ -6,12 +6,14 @@
 # make tool ... pcmtool作成
 
 
-CXX = g++
-CC = gcc
+PREF = /home/cygwin/cegcc/arm-mingw32ce
+CXX = /home/cygwin/cegcc/bin/arm-mingw32ce-g++
+CC = /home/cygwin/cegcc/bin/arm-mingw32ce-gcc
 CFLAGS = 
 CXXFLAGS = 
 # CXXFLAGS += -Wno-write-strings
-COMMON_FLAGS = -Wall -O3
+COMMON_FLAGS = -Wall -O3 
+# -fexceptions -fno-rtti -fno-check-new -fomit-frame-pointer -fno-stack-protector -pipe -fpermissive
 # COMMON_FLAGS += -Wall -Werror
 LDFLAGS = 
 DEFINES = 
@@ -110,34 +112,36 @@ LIBS += -mconsole
 
 # SDL
 else ifeq ($(OS_SDL),1)
+DEFINES += -DNO_STDIO_REDIRECT -USDL_STDIO_REDIRECT 
 DIRS += sdl
 DEP_SRCS += sdl/osdep_sdl.cpp
 DEP_SRCS += sdl/audiobuffer.cpp
 DEP_SRCS += sdl/audiotime.cpp
 
-SDL_CFLAGS = `sdl-config --cflags` -DUSE_SDL
+SDL_CFLAGS = `$(PREF)/bin/sdl-config --cflags` -DUSE_SDL
 COMMON_FLAGS += $(SDL_CFLAGS)
 
 ifeq ($(STATIC),1)
 ifeq ($(OS_LINUX),1)
-SDL_LIBS =  `sdl-config --static-libs` -static-libgcc -static-libstdc++
+SDL_LIBS =  `$(PREF)/bin/sdl-config --static-libs` -static-libgcc -static-libstdc++
 LDFLAGS +=  -Wl,-rpath,/usr/local/lib,-rpath,/usr/lib/x86_64-linux-gnu,-rpath,/usr/lib/gcc/x86_64-linux-gnu
 else
-SDL_LIBS =  `sdl-config --static-libs`
+SDL_LIBS =  `$(PREF)/bin/sdl-config --libs`
 endif
 else
 ifeq ($(OS_LINUX),1)
-SDL_LIBS =  `sdl-config --libs` -lX11
+SDL_LIBS =  `$(PREF)/bin/sdl-config --libs`
 else 
-SDL_LIBS =  `sdl-config --libs`
+SDL_LIBS =  `$(PREF)/bin/sdl-config --libs`
 endif
 endif
 
 ifeq ($(SDL_WIN32),1)
 # dllをすべて静的リンクします。 （Win32かつSDLはテスト用途のため)
-LIBS += -static $(SDL_LIBS) -mconsole
+#LIBS += -static $(SDL_LIBS) -mconsole
+LIBS += -Wl,-Bdynamic $(SDL_LIBS) -Wl,-Bstatic -lm -lcoredll -lmmtimer -lcoredll -lcommctrl
 else
-LIBS += $(SDL_LIBS)
+LIBS += -static $(SDL_LIBS)
 endif
 else 
 DIRS += dummy

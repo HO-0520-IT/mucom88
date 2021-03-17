@@ -1,14 +1,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#ifdef _WIN32
+/*#ifdef _WIN32
 #include <direct.h>
-#else
+#else*/
 #include <unistd.h>
 #include <libgen.h>
 #define _chdir chdir
 #define _getcwd getcwd
-#endif
+//#endif
 
 #ifndef MAX_PATH
 #define	MAX_PATH	(260)
@@ -25,10 +25,12 @@
 #include "pcmtool.h"
 #include "pcmentry.h"
 
+#include "../wincehelper.h"
+
 void SplitPath(const char *path, char *drive, char *dir, char *name, char *ext) {
-#ifdef _WIN32
+/*#ifdef _WIN32
 	_splitpath(path, drive, dir, name, ext);
-#else
+#else*/
 	char buf[_MAX_PATH];
 	strcpy(buf, path);
 	if (drive) drive[0] = 0;
@@ -39,7 +41,7 @@ void SplitPath(const char *path, char *drive, char *dir, char *name, char *ext) 
         if (p) *p = 0;
     }
 	if (ext) strcpy(ext, strrchr(path, '.'));
-#endif
+//#endif
 
 }
 
@@ -65,7 +67,7 @@ PcmTool::~PcmTool() {
 }
 
 bool PcmTool::WriteBinary(const char* outfile) {
-	FILE* fp = fopen(outfile, "wb");
+	FILE* fp = wceh_fopen(outfile, "wb");
 	if (!fp) { return false; }
 
 	fwrite(header, DATABIN_HEADER_LEN,1, fp);
@@ -78,7 +80,7 @@ bool PcmTool::WriteBinary(const char* outfile) {
 
 int PcmTool::Convert(const char* filename)
 {
-	FILE* fp = fopen(filename, "r");
+	FILE* fp = wceh_fopen(filename, "r");
 	if (!fp) {
 		printf("File open error!\n");
 	}

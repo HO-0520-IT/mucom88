@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 
+#include "../wincehelper.h"
 
 #ifdef Z80_DEBUG
 #include <stdio.h>
@@ -404,6 +405,13 @@ int32_t Z80::Execute(int32_t n) {
 #endif
 
 		RefReg++;
+		/*int m1;
+		m1 = M1;
+		if ((pc == 0x9cbb) || (pc == 0x9cd4) || (pc == 0x9bf0) || (pc == 0x9bfc)) {
+			return m1;
+		}
+		switch (m1) {*/
+		uint8_t opbuf[4];
 		switch (M1) {
 #define RST(i) case 0xc7 + 8 * (i): if (Extender(8 * i)) break; st16(sp -= 2, pc); pc = 8 * i; CLOCK(1); break;
 			SET_8(RST)
@@ -827,7 +835,13 @@ int32_t Z80::Execute(int32_t n) {
 			pc = HL;
 			break;
 			case 0xd9: // exx
-			swap(*(uint32_t *)r, bcde);
+			for (int i = 0; i < 4; i++) {
+				opbuf[i] = r[i];
+			}
+			swap(bcde, *(uint32_t *)&opbuf[0]);
+			for (int i = 0; i < 4; i++) {
+				r[i] = opbuf[i];
+			}
 			swap(HLfix, hl);
 			break;
 			case 0xc9: // ret
@@ -1521,7 +1535,7 @@ void Z80::StopTrace() {
 	TraceBuffer *endp = tracep;
 	int i = 0;
 	FILE *fo;
-	if (!(fo = fopen("trace.dat", "w"))) exit(1);
+	if (!(fo = wceh_fopen("trace.dat", "w"))) exit(1);
 	do {
 		if (++tracep >= tracebuf + TRACEMAX) tracep = tracebuf;
 		fprintf(fo, "%7d %04x\t", i++, tracep->pc);
